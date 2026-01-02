@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - OneClick Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        /* Developer's professional CSS styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0f1419; color: #f5f8fa; min-height: 100vh; }
+        .login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-container { background: #1e2732; padding: 30px; border-radius: 16px; border: 1px solid #38444d; width: 100%; max-width: 350px; text-align: center; }
+        .login-container h1 { margin-bottom: 20px; color: #1da1f2; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f1419; border: 1px solid #38444d; color: white; border-radius: 8px; }
+        .btn-login, .btn-submit { width: 100%; padding: 12px; background: #1da1f2; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .admin-panel { display: none; padding: 20px; max-width: 900px; margin: auto; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; background: #1e2732; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .product-item { background: #1e2732; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid #38444d; }
+        .product-image-small { width: 50px; height: 50px; border-radius: 5px; object-fit: contain; background: white; }
+        .btn-delete { background: rgba(224, 36, 94, 0.1); color: #e0245e; border: 1px solid #e0245e; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h1>Admin Login</h1>
+            <input type="password" id="adminPassword" placeholder="पासवर्ड डालें">
+            <button class="btn-login" id="loginBtn">Login</button>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-header">
+            <h2>Admin Panel</h2>
+            <button id="logoutBtn" style="background:none; border:none; color:#8b98a5; cursor:pointer;">Logout</button>
+        </div>
+
+        <div style="background:#1e2732; padding:20px; border-radius:12px; margin-bottom:20px; border:1px solid #38444d;">
+            <h3>नयी डील जोड़ें</h3>
+            <form id="addProductForm" style="margin-top:15px;">
+                <input type="text" id="productName" placeholder="प्रोडक्ट का नाम" required>
+                <input type="url" id="productLink" placeholder="एफिलिएट लिंक (EarnKaro/Amazon)" required>
+                <input type="url" id="productImage" placeholder="फोटो का लिंक (Image URL)" required>
+                <button type="submit" class="btn-submit" id="submitBtn">Post Deal Now</button>
+            </form>
+        </div>
+
+        <h3>लाइव डील्स (<span id="totalProducts">0</span>)</h3>
+        <div id="productsList" style="margin-top:15px;"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
