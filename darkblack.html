@@ -4,55 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - OneClick Store</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* Developer's professional CSS styles */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #0f1419; color: #f5f8fa; min-height: 100vh; }
-        .login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .login-container { background: #1e2732; padding: 30px; border-radius: 16px; border: 1px solid #38444d; width: 100%; max-width: 350px; text-align: center; }
-        .login-container h1 { margin-bottom: 20px; color: #1da1f2; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f1419; border: 1px solid #38444d; color: white; border-radius: 8px; }
-        .btn-login, .btn-submit { width: 100%; padding: 12px; background: #1da1f2; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .admin-panel { display: none; padding: 20px; max-width: 900px; margin: auto; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; background: #1e2732; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-        .product-item { background: #1e2732; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid #38444d; }
-        .product-image-small { width: 50px; height: 50px; border-radius: 5px; object-fit: contain; background: white; }
-        .btn-delete { background: rgba(224, 36, 94, 0.1); color: #e0245e; border: 1px solid #e0245e; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        body { font-family: sans-serif; background: #1a1a1a; color: white; padding: 15px; }
+        .box { background: #333; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+        .btn { background: #28a745; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-size: 16px; border-radius: 5px; font-weight: bold; }
+        #status { color: #ffc107; text-align: center; font-size: 14px; margin: 10px 0; }
     </style>
 </head>
 <body>
+    <div class="box">
+        <h2 style="text-align: center;">नई डील जोड़ें</h2>
+        
+        <label>1. गैलरी से फोटो चुनें:</label>
+        <input type="file" id="imgInput" accept="image/*" onchange="uploadPhoto()">
+        <p id="status">कोई फोटो नहीं चुनी गई</p>
 
-    <div id="loginScreen" class="login-screen">
-        <div class="login-container">
-            <h1>Admin Login</h1>
-            <input type="password" id="adminPassword" placeholder="पासवर्ड डालें">
-            <button class="btn-login" id="loginBtn">Login</button>
-        </div>
+        <label>2. प्रोडक्ट की जानकारी:</label>
+        <input type="text" id="pName" placeholder="प्रोडक्ट का नाम">
+        <input type="text" id="pPrice" placeholder="कीमत (₹)">
+        <input type="text" id="pImgUrl" placeholder="URL यहाँ अपने आप आएगा" readonly>
+        <input type="text" id="pBuyUrl" placeholder="Affiliate/Buy Link">
+
+        <button class="btn" onclick="saveToStore()">स्टोर पर लाइव करें</button>
     </div>
 
-    <div id="adminPanel" class="admin-panel">
-        <div class="admin-header">
-            <h2>Admin Panel</h2>
-            <button id="logoutBtn" style="background:none; border:none; color:#8b98a5; cursor:pointer;">Logout</button>
-        </div>
+    <script>
+        async function uploadPhoto() {
+            const file = document.getElementById('imgInput').files[0];
+            const status = document.getElementById('status');
+            const urlBox = document.getElementById('pImgUrl');
+            const apiKey = 'A4e401f90d4f83356603cf07becfcaa9'; // आपकी Key सेट कर दी है
 
-        <div style="background:#1e2732; padding:20px; border-radius:12px; margin-bottom:20px; border:1px solid #38444d;">
-            <h3>नयी डील जोड़ें</h3>
-            <form id="addProductForm" style="margin-top:15px;">
-                <input type="text" id="productName" placeholder="प्रोडक्ट का नाम" required>
-                <input type="url" id="productLink" placeholder="एफिलिएट लिंक (EarnKaro/Amazon)" required>
-                <input type="url" id="productImage" placeholder="फोटो का लिंक (Image URL)" required>
-                <button type="submit" class="btn-submit" id="submitBtn">Post Deal Now</button>
-            </form>
-        </div>
+            if(!file) return;
+            status.innerText = "⏳ अपलोड हो रहा है... कृपया रुकें";
+            status.style.color = "#ffc107";
 
-        <h3>लाइव डील्स (<span id="totalProducts">0</span>)</h3>
-        <div id="productsList" style="margin-top:15px;"></div>
-    </div>
+            const formData = new FormData();
+            formData.append('image', file);
 
-    <script src="script.js"></script>
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if(data.success) {
+                    urlBox.value = data.data.url;
+                    status.innerText = "✅ फोटो सफलतापूर्वक अपलोड हो गई!";
+                    status.style.color = "#28a745";
+                }
+            } catch (e) {
+                status.innerText = "❌ एरर! दोबारा कोशिश करें।";
+                status.style.color = "#dc3545";
+            }
+        }
+
+        function saveToStore() {
+            // यहाँ सामान को सेव करने का लॉजिक
+            alert("बधाई हो! प्रोडक्ट की जानकारी तैयार है।");
+        }
+    </script>
 </body>
 </html>
